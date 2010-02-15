@@ -1,8 +1,10 @@
-%tr
-  %th.label
-    Twitter
-  %td
-    = check_box 'page', 'notify_twitter_of_children'
-    %label{:for => "page_notify_twitter_of_children"} Notify Twitter of newly published child pages?
-    - if @page.twitter_id
-      = link_to "[#{@page.twitter_id}]", "http://twitter.com/#{Radiant::Config['twitter.username']}/statuses/#{@page.twitter_id}"
+- if Site.current_site.twitter_username
+  %tr
+    %th.label
+      %label{:for => "page_notify_twitter_of_children"}
+        Twitter
+    %td
+      = check_box 'page', 'notify_twitter_of_children'
+      %label{:for => "page_notify_twitter_of_children"} Tweet when a child page is first published ... 
+      = check_box 'page', 'notify_twitter_of_children_updates'
+      %label{:for => "page_notify_twitter_of_children_updates"} or updated

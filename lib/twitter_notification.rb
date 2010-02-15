@@ -1,4 +1,5 @@
 require 'twitter'
+require 'bitly'
 module TwitterNotification
   def self.included(base)
     base.class_eval {
@@ -8,14 +9,19 @@ module TwitterNotification
   
   def notify_twitter
     if parent
-      if published? && twitter_configured? && parent.notify_twitter_of_children? && !self.twitter_id
-        title_length = 138 - absolute_url.length
+      if published? && twitter_configured? && parent.notify_twitter_of_children? && (parent.notify_twitter_of_children_updates? || !self.twitter_id)
+        bitly = Bitly.new(config['bitly.username'], config['bitly.api_key'])
+        bitly_url = bitly.shorten(absolute_url, :history => 1)
+        message_intro = "Webpage '"
+        url = bitly_url.jmp_url
+        title_length = 131 -message_intro.length - url.length
         message_title = title.length > title_length ? (title[0..title_length-4] + "...") : title
-        message = "#{message_title}: #{absolute_url}"
+        message = "#{message_intro}#{message_title}' updated: #{url}"
         begin
-          httpauth = Twitter::HTTPAuth.new(config['twitter.username'], config['twitter.password'])
+          site = Site.current_site
+          httpauth = Twitter::HTTPAuth.new(site.twitter_username, site.twitter_password)
           client = Twitter::Base.new(httpauth)
-          status = client.update(message, :source => "radianttwitternotifier")
+          status = client.update(message, :source => "outrighteouswebsite")
           # Don't trigger save callbacks
           self.class.update_all({:twitter_id => status.id}, :id => self.id)
         rescue Exception => e
@@ -28,15 +34,19 @@ module TwitterNotification
   end
 
   def absolute_url
-    if config['twitter.url_host'] =~ /^http/
-      "#{config['twitter.url_host']}#{self.url}"
+    raise "Couldn't find site" if Site.current_site.nil?
+    site = Site.current_site
+    if site.hostname =~ /^http/
+      "#{site.hostname}#{self.url}"
     else
-      "http://#{config['twitter.url_host']}#{self.url}"
+      "http://#{site.hostname}#{self.url}"
     end
   end
 
   def twitter_configured?
-    !%w(twitter.username twitter.password twitter.url_host).any? {|k| config[k].blank? }
+    raise "Couldn't find site" if Site.current_site.nil?
+    site = Site.current_site
+    !site.twitter_username.nil? && !site.twitter_password.nil? && !site.hostname.nil?
   end
 
   def config

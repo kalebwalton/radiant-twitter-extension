@@ -19,8 +19,10 @@ module TwitterTags
   
   private
     def twitter_status
+      raise "Couldn't find site" if Site.current_site.nil?
+      site = Site.current_site
       begin
-        httpauth = Twitter::HTTPAuth.new(config['twitter.username'], config['twitter.password'])
+        httpauth = Twitter::HTTPAuth.new(site.twitter_username, site.twitter_password)
         client = Twitter::Base.new(httpauth)
         return client.user_timeline[0]
       rescue Exception => e

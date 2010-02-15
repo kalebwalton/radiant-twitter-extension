@@ -1,0 +1,9 @@
+[submodule "vendor/plugins/twitter"]
+	path = vendor/plugins/twitter
+	url = git@github.com:kalebwalton/twitter.git
+[submodule "vendor/plugins/oauth"]
+	path = vendor/plugins/oauth
+	url = git@github.com:kalebwalton/oauth.git
+[submodule "vendor/plugins/bitly"]
+	path = vendor/plugins/bitly
+	url = git@github.com:kalebwalton/bitly.git
