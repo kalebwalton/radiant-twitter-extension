@@ -10,7 +10,7 @@ module TwitterNotification
   def notify_twitter
     if parent
       if published? && twitter_configured? && parent.notify_twitter_of_children? && (parent.notify_twitter_of_children_updates? || !self.twitter_id)
-        bitly = Bitly.new(config['bitly.username'], config['bitly.api_key'])
+        bitly = Bitly.new(radiant_config['bitly.username'], radiant_config['bitly.api_key'])
         bitly_url = bitly.shorten(absolute_url, :history => 1)
         message_intro = "Webpage '"
         url = bitly_url.jmp_url
@@ -49,7 +49,7 @@ module TwitterNotification
     !site.twitter_username.nil? && !site.twitter_password.nil? && !site.hostname.nil?
   end
 
-  def config
+  def radiant_config
     Radiant::Config
   end
 end
