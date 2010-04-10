@@ -36,10 +36,11 @@ module TwitterNotification
   def absolute_url
     raise "Couldn't find site" if Site.current_site.nil?
     site = Site.current_site
-    if site.hostname =~ /^http/
-      "#{site.hostname}#{self.url}"
+    site_hostname = site.hostname.split(',')[0].strip # Get the first site in the list as it's the primary
+    if site_hostname =~ /^http/
+      "#{site_hostname}#{self.url}"
     else
-      "http://#{site.hostname}#{self.url}"
+      "http://#{site_hostname}#{self.url}"
     end
   end
 
